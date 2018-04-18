@@ -1,0 +1,10 @@
+.g-coin .yd-popup-content {
+	background: #f4f4f4;
+}
+
+.g-coin .yd-popup-content>div {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
