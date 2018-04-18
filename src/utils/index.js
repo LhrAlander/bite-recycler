@@ -1,3 +1,6 @@
+import axios from 'axios'
+const appId = 'wx849816d52854ed3e'
+const appSecret = '246c09366e3812b779ba4664694994a7'
 function getQueryVariable(variable) {
 	var query = window.location.search.substring(1);
 	var vars = query.split("&");
@@ -8,4 +11,16 @@ function getQueryVariable(variable) {
 	return (false);
 }
 
-export default {getQueryVariable} 
+function getUserInfo(code) {
+	axios.post('localhost:3001/userInfo', {
+		appId,
+		appSecret,
+		code
+	}).then(res => {
+		console.log(res)
+	}).catch(err => {
+		console.log(err)
+	})
+}
+
+export default { getQueryVariable, getUserInfo } 
