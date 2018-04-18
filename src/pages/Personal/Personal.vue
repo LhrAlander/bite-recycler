@@ -4,7 +4,9 @@
 			<div class="personal-bg"></div>
 		</div>
   	<div class="person-content" ref='bd'>
-			<div class="personal-avatar" ref='avatar'></div>
+			<div class="personal-avatar">
+				<img src="" alt="" ref='avatar'/>
+			</div>
 			<div class="personal-login" ref='nickname'> 立即登录</div>
 			<div class="personal-function">
 				<div class="history">
@@ -230,6 +232,11 @@ img.order {
 	width: 1.5rem;
 	height: 1.5rem;
 }
+.personal-avatar img {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
 
 </style>
 <script>
@@ -239,8 +246,9 @@ export default {
 		const nickname = window.localStorage.getItem('nickname')
 		const avatarurl = window.localStorage.getItem('avatarurl')
 		if (nickname != undefined && nickname != null) {
-			this.$refs.avatar.style.background=`url('${avatarurl}')`
+			this.$refs.avatar.src=avatarurl
 			this.$refs.nickname.innerHTML = nickname
+			this.$refs.nickname.style.border='0px solid transparent'
 		}
 		const bd = this.$refs.bd
 		const topCtn = this.$refs.topCtn
