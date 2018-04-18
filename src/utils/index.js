@@ -12,7 +12,7 @@ function getQueryVariable(variable) {
 }
 
 function getUserInfo(code) {
-	axios.post('http://localhost:3001/userInfo', {
+	axios.post('http://alanderlight.club/userInfo', {
 		appId,
 		appSecret,
 		code
