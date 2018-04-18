@@ -8,4 +8,4 @@ function getQueryVariable(variable) {
 	return (false);
 }
 
-export default getQueryVariable
+export default {getQueryVariable} 
