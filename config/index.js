@@ -41,7 +41,7 @@ module.exports = {
     index: path.resolve(__dirname, '/var/www/html/bite/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '/var/www/html/bite/dist'),
+    assetsRoot: path.resolve(__dirname, '/var/www/html/bite/'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
 
