@@ -18,6 +18,13 @@ function getUserInfo(code) {
 		code
 	}).then(res => {
 		console.log(res)
+		let nickname = res.data.nickname
+		let avatarurl = res.data.headimgurl
+		let _nn = window.localStorage.getItem('nickname')
+		if (_nn != nickname) {
+			window.localStorage.setItem('nickname', nickname)
+			window.localStorage.setItem('avatarurl', avatarurl)
+		}
 	}).catch(err => {
 		console.log(err)
 	})

@@ -4,8 +4,8 @@
 			<div class="personal-bg"></div>
 		</div>
   	<div class="person-content" ref='bd'>
-			<div class="personal-avatar"></div>
-			<div class="personal-login"> 立即登录</div>
+			<div class="personal-avatar" ref='avatar'></div>
+			<div class="personal-login" ref='nickname'> 立即登录</div>
 			<div class="personal-function">
 				<div class="history">
 					<div class="wp">
@@ -133,12 +133,11 @@
 }
 .personal-avatar {
   margin: 0 auto;
-
+  background-size: 100%;
   border: #fff solid 2px;
   width: 62px;
   height: 62px;
   border-radius: 31px;
-  background-color: #cccccc;
 }
 .personal-login {
   margin: 0 auto;
@@ -237,6 +236,12 @@ img.order {
 import MyFooter from '@/components/MyFooter'
 export default {
 	mounted() {
+		const nickname = window.localStorage.getItem('nickname')
+		const avatarurl = window.localStorage.getItem('avatarurl')
+		if (nickname != undefined && nickname != null) {
+			this.$refs.avatar.style.background=`url('${avatarurl}')`
+			this.$refs.nickname.innerHTML = nickname
+		}
 		const bd = this.$refs.bd
 		const topCtn = this.$refs.topCtn
 		const fillBox = this.$refs.fillPg
