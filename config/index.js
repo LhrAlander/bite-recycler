@@ -38,10 +38,10 @@ module.exports = {
 
   build: {
     // Template for index.html
-    index: path.resolve(__dirname, '/var/www/html/bite/index.html'),
+    index: path.resolve(__dirname, '/var/www/html/bit/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '/var/www/html/bite'),
+    assetsRoot: path.resolve(__dirname, '/var/www/html/bit'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
 
