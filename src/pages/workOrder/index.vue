@@ -40,12 +40,13 @@
 </template>
 <script>
 import MyFooter from '@/components/MyFooter'
+import util from '@/utils'
 export default {
 	components: {
 		MyFooter
 	},
 	mounted() {
-		console.log(this.$route.params)
+		console.log(util.getQueryVariable('code'))
 		const orderBtn = this.$refs['order-btn']
 		const opts = orderBtn.getBoundingClientRect()
 		const diff = opts.width / 4
