@@ -22,12 +22,8 @@ function getUserInfo(code) {
 		let avatarurl = res.data.headimgurl
 		let _nn = window.localStorage.getItem('nickname')
 		let _url = window.localStorage.getItem('avatarurl')
-		alert(avatarurl)
-		alert(_url)
-		if (nickname != _nn && nickname != undefined && nickname != null) {
-			window.localStorage.setItem('nickname', nickname)
-			window.localStorage.setItem('avatarurl', avatarurl)
-		}
+		window.localStorage.setItem('nickname', nickname)
+		window.localStorage.setItem('avatarurl', avatarurl)
 	}).catch(err => {
 		console.log(err)
 	})
