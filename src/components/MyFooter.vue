@@ -8,11 +8,26 @@
 </template>
 <script>
 export default {
+	mounted() {
+		console.log(this.$route)
+		switch(this.$route.name) {
+			case 'personal':
+				this.iconDetail[2].icon = 'my-selected.png'
+				break;
+			case 'stations':
+				this.iconDetail[1].icon = '/sell-selected.png'
+				break;
+			case 'workOrder':
+				this.iconDetail[0].icon = '/recycle-selected.png'
+				break;
+			
+		}
+	},
 	data() {
 		return {
 			iconDetail: [
 				{
-					icon: 'recycle-selected.png',
+					icon: 'recycle.png',
 					title: '回收',
 					url: '/workOrder'
 				},
