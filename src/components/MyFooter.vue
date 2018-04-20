@@ -54,8 +54,8 @@ export default {
 	flex-wrap: wrap;
 }
 .u-detail img {
-	width: 100%;
-	height: 71.4%;
+	width: 1.875rem;
+	height: 1.875rem
 }
 
 .u-detail span {
