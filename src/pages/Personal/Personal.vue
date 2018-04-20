@@ -103,6 +103,7 @@
 }
 .g-ft {
 	position: fixed;
+	height: 48px;
 	bottom: 0;
 	left: 0;
 	background: #fff;

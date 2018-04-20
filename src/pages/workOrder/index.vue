@@ -93,7 +93,7 @@ export default {
 }
 .g-ft {
   width: 100%;
-  /* height: 16.53%; */
+  height: 98px;
   position: fixed;
   bottom: 0;
 }
@@ -157,13 +157,13 @@ export default {
   height: 2.25em;
 }
 
-/* .u-get-order,
+.u-get-order,
 .u-footer {
 	width: 100%;
 	height: 50%;
-} */
+}
 .u-get-order {
-  height: 43px;
+  /* height: 43px; */
 }
 .u-get-order {
   background: linear-gradient(to right, #6ee0ff, #32aafa);
