@@ -15,10 +15,10 @@ export default {
 				this.iconDetail[2].icon = 'my-selected.png'
 				break;
 			case 'stations':
-				this.iconDetail[1].icon = '/sell-selected.png'
+				this.iconDetail[1].icon = 'sell-selected.png'
 				break;
 			case 'workOrder':
-				this.iconDetail[0].icon = '/recycle-selected.png'
+				this.iconDetail[0].icon = 'recycle-selected.png'
 				break;
 			
 		}
