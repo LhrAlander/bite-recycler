@@ -59,6 +59,7 @@ export default {
 .g-ft {
 	position: fixed;
 	height: 48px;
+	width: 100%;
 	bottom: 0;
 	left: 0;
 	background: #fff;
