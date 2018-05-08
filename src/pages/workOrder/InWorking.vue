@@ -291,6 +291,9 @@ export default {
 	width: 1.375rem;
 	height: 1.375rem;
 }
+.u-comment span {
+  font-size: .6875rem;
+}
 
 .u-comment .comment-btn {
 	font-size: .6875rem;
@@ -302,7 +305,7 @@ export default {
 }
 
 .u-hd {
-  font-size: 0.8125em;
+  font-size: 0.8125rem;
   color: #333;
   display: flex;
   justify-content: space-between;
@@ -310,7 +313,7 @@ export default {
 }
 .u-info {
   width: 100%;
-  height: 44.16%;
+  height: 46.16%;
   position: relative;
   background: #fff;
   border-radius: 3px;
@@ -345,8 +348,8 @@ export default {
 }
 
 .u-info img {
-  width: 2.25em;
-  height: 2.25em;
+  width: 2.25rem;
+  height: 2.25rem;
 }
 
 .u-get-order,
@@ -371,7 +374,7 @@ export default {
 }
 
 .u-get-order .time {
-  font-size: 0.625em;
+  font-size: 0.625rem;
   color: #fff;
 }
 </style>

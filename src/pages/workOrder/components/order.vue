@@ -3,7 +3,7 @@
 		<div class="m-cnt">
 			<div class="u-hd" :class="[{'active': order.active}, {'default': !order.active}]">
 				<span class="bold">{{order.currentStatus}}</span>
-				<span>已等待{{order.waitTime}}分钟</span>
+				<span class='min'>已等待{{order.waitTime}}分钟</span>
 			</div>
 			<div class="u-main">
 				<div class="title">
@@ -91,6 +91,9 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
+.u-hd .min {
+	font-size: .8125rem;
+}
 .u-hd.default {
 	border-bottom: 1px solid #333;
 	color: #333;
@@ -108,7 +111,7 @@ export default {
 .u-ft {
   width: 100%;
   height: 19.04%;
-  margin-top: 1.2em;
+  margin-top: 1.2rem;
   display: flex;
   justify-content: space-between;
 }
@@ -121,27 +124,27 @@ export default {
 
 .u-main .category .ct {
   color: #333;
-  font-size: 0.8125em;
-  border-radius: 0.5em;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
   border: 1px solid #797979;
-  padding: 0.2em 0.5em;
-  margin-left: 0.3em;
+  padding: 0.2rem 0.5rem;
+  margin-left: 0.3rem;
 }
 
 .u-main .distance {
-  margin-top: 0.5em;
+  margin-top: 0.5rem;
 }
 .u-main .distance .dt {
   color: #bcbcbc;
-  font-size: 0.8125em;
+  font-size: 0.8125rem;
 }
 
 .dot {
   display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
-  margin-right: 0.2em;
+  margin-right: 0.2rem;
 }
 .dot.pink {
   background: #ff8888;
@@ -152,7 +155,7 @@ export default {
 .btn {
   width: 47.48%;
   height: 100%;
-  border-radius: 0.6em;
+  border-radius: 0.6rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -161,12 +164,12 @@ export default {
 .btn.default {
   border: 1px solid #333;
   color: #333;
-  font-size: 0.8125em;
+  font-size: 0.8125rem;
 }
 
 .btn.active {
   border: 1px solid #32aafa;
   color: #32aafa;
-  font-size: 0.8125em;
+  font-size: 0.8125rem;
 }
 </style>
