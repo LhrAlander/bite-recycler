@@ -20,10 +20,14 @@ function getUserInfo(code) {
 		console.log(res)
 		let nickname = res.data.nickname
 		let avatarurl = res.data.headimgurl
+		let OID = res.data.openid
 		let _nn = window.localStorage.getItem('nickname')
 		let _url = window.localStorage.getItem('avatarurl')
-		window.localStorage.setItem('nickname', nickname)
-		window.localStorage.setItem('avatarurl', avatarurl)
+		if (nickname && avatarurl) {
+			window.localStorage.setItem('nickname', nickname)
+			window.localStorage.setItem('avatarurl', avatarurl)
+			window.localStorage.setItem('OID', OID)
+		}
 	}).catch(err => {
 		console.log(err)
 	})

@@ -45,6 +45,8 @@ import orderStatus from "@/config/common";
 import checkInfo from "./components/checkInfo";
 import confirmPop from "./components/confirmPop";
 import { Popup } from "vue-ydui/dist/lib.rem/popup";
+import io from 'socket.io-client'
+import axios from 'axios'
 export default {
   components: {
     MyFooter,
@@ -54,6 +56,7 @@ export default {
     confirmPop
   },
   mounted() {
+    this.startQueryOrders()
     const html = document.getElementsByTagName("html")[0];
     const htmlUnitFontSize = window
       .getComputedStyle(html, null)
@@ -99,12 +102,15 @@ export default {
   },
   data() {
     return {
+      socket: null,
+      queryBind: '',
       commentShow: true,
       checkShow: false,
       confirmShow: false,
       changeDiff: "",
       orderShow: true,
       htmlUnitFontSize: 16,
+      needLength: 2,
       orders: [
         {
           status: orderStatus.order.WAIT_STATUS,
@@ -227,14 +233,48 @@ export default {
     },
     cancelCheck() {
       this.checkShow = false;
+    },
+    getData() {
+      axios.post('/api/recycler/orders/unchecked', {
+        needLength: this.needLength
+      })
+        .then(res => {
+          console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    // 轮询查看访问订单
+    async startQueryOrders() {
+      console.log('try to connect')
+      this.socket = await io.connect('http://localhost:9999')
+      let OID = window.localStorage.getItem('OID')
+      this.socket.emit('addUser', {
+        OID
+      })
+      this.socket.on('newOrders', msg => {
+        console.log(msg)
+      })
+      axios.post('/api/recycler/orders/unchecked')
+        .then(res => {
+          console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
+  },
+  destroyed() {
+    console.log('取消查询')
+    this.socket.close()
   }
 };
 </script>
 <style scoped>
 .g-inworking {
-  height: 100%;
-  widows: 100%;
+  height: calc(100% + 98px);
+  width: 100%;
 	overflow: hidden;
 }
 .g-bd {
@@ -243,6 +283,7 @@ export default {
   background: #f2f2f2;
 }
 .g-ft {
+  z-index: 11;
   width: 100%;
   height: 98px;
   position: fixed;
@@ -252,14 +293,20 @@ export default {
   width: 100%;
   height: 2.5rem;
   background: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9;
 }
 .m-info {
   width: 95%;
   height: 92%;
   box-sizing: border-box;
   margin: 0 auto;
+  margin-top: 2.5rem;
   overflow: hidden;
   padding-top: 0.625rem;
+  z-index: 10;
   /* display: flex;
   flex-wrap: wrap;
   justify-content: space-between; */
@@ -313,7 +360,8 @@ export default {
 }
 .u-info {
   width: 100%;
-  height: 46.16%;
+  /* height: 47.16%; */
+  height: 210px;
   position: relative;
   background: #fff;
   border-radius: 3px;
