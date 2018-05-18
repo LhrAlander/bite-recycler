@@ -13,8 +13,7 @@
 				<div class="info">
 					<div class="category">
 						<span class="dot yellow"></span>
-						<span class="ct">废书废纸</span>
-						<span class="ct">废旧衣物</span>
+						<span class="ct" v-for="d in order.detail" :key="d">{{d}}</span>
 					</div>
 					<div class="distance">
 						<span class="dot pink"></span>

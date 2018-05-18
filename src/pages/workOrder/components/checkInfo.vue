@@ -10,55 +10,28 @@
 				<div class="table-main">
 					<div class="column">
 						<span class="title">种类</span>
-						<div class="item">
-							<span class="category">废报纸</span>
-						</div>
-						<div class="item">
-							<span class="category">废书纸</span>
-						</div>
-						<div class="item">
-							<span class="category">塑料瓶</span>
-						</div>
-						<div class="item">
-							<span class="category">废钢铁</span>
+						<div class="item" v-for="d in currentOrder.detail" :key="d">
+							<span class="category">{{d}}</span>
 						</div>
 					</div>
 					<div class="column">
 						<span class="title">重量(斤)</span>
-						<div class="item">
-							<input class='my-input' v-model="details.newspaper.weight" type="text" placeholder="请输入">
-						</div>
-						<div class="item">
-							<input type="text" v-model="details.book.weight" placeholder="请输入">
-						</div>
-						<div class="item">
-							<input type="text" v-model="details.bottle.weight" placeholder="请输入">
-						</div>
-						<div class="item">
-							<input type="text" v-model="details.iron.weight" placeholder="请输入">
+						<div class="item" v-for="(d, index) in currentOrder.detail" :key="index">
+							<input class='my-input' v-model="weight[index]" type="text" placeholder="请输入">
 						</div>
 					</div>
 					<div class="column">
 						<span class="title">单价(角/斤)</span>
-						<div class="item">
-							<input type="text" v-model="details.newspaper.price" placeholder="请输入">
-						</div>
-						<div class="item">
-							<input type="text" v-model="details.book.price" placeholder="请输入">
-						</div>
-						<div class="item">
-							<input type="text" v-model="details.bottle.price" placeholder="请输入">
-						</div>
-						<div class="item">
-							<input type="text" v-model="details.iron.price" placeholder="请输入">
+						<div class="item" v-for="(d, index) in currentOrder.detail" :key="index">
+							<input type="text" v-model="price[index]" placeholder="请输入">
 						</div>
 					</div>
 					<div class="column">
 						<span class="title">总价(元)</span>
-						<div class="item">
-							<input type="text" v-model="newspaperTotal" disabled='true'>
+						<div class="item" v-for="(d, index) in currentOrder.detail" :key="index">
+							<input  class='total-input' type="text" :placeholder="getTotal(index)" disabled='true'>
 						</div>
-						<div class="item">
+						<!-- <div class="item">
 							<input type="text" v-model="bookTotal" disabled='true'>
 						</div>
 						<div class="item">
@@ -66,7 +39,7 @@
 						</div>
 						<div class="item">
 							<input type="text" v-model="ironTotal" disabled='true'>
-						</div>
+						</div> -->
 					</div>
 				</div>
 				<div class="total">
@@ -82,6 +55,15 @@
 import { GridsGroup, GridsItem } from "vue-ydui/dist/lib.rem/grids";
 import { Input } from "vue-ydui/dist/lib.rem/input";
 export default {
+  props: {
+    currentOrder: Object
+  },
+  data() {
+    return {
+      weight: [],
+      price: []
+    }
+  },
   mounted() {
     const card = document.getElementsByClassName('card')[0]
     card.style.height = card.clientHeight + 'px'
@@ -91,32 +73,19 @@ export default {
     ydGridsItem: GridsItem,
     ydInput: Input
   },
-  data() {
-    return {
-      details: {
-        newspaper: {
-          weight: "",
-          price: ""
-        },
-        book: {
-          weight: "",
-          price: ""
-        },
-        bottle: {
-          weight: "",
-          price: ""
-        },
-        iron: {
-          weight: "",
-          price: ""
-        }
-      }
-    };
-  },
   methods: {
+    getTotal(i) {
+      let total = parseFloat(parseFloat(this.weight[i]) * parseFloat(this.price[i]))
+      if (total) return total
+    },
     confirm() {
 			console.log('c')
-      this.$emit("confirm");
+      let d = {}
+      for (let i = 0; i < this.currentOrder.detail.length; i++) {
+        let k = this.currentOrder.detail[i]
+        d[k] = `${this.weight[i]}-${this.price[i]}`
+      }
+      this.$emit("confirm", d);
     },
     cancelCheck() {
 			console.log('cancel')
@@ -125,62 +94,12 @@ export default {
   },
   computed: {
     totalValue() {
-      return parseFloat(
-        parseFloat(this.newspaperTotal) +
-          parseFloat(this.bookTotal) +
-          parseFloat(this.bottleTotal) +
-          parseFloat(this.ironTotal)
-      );
-    },
-    newspaperTotal() {
-      if (
-        this.details.newspaper.weight != "" &&
-        this.details.newspaper.price != "" &&
-        this.details.newspaper.weight != undefined &&
-        this.details.newspaper.price != undefined
-      ) {
-        console.log("has");
-        return (
-          this.details.newspaper.weight * this.details.newspaper.price / 10
-        );
+      let total = 0
+      for (let i = 0; i < this.weight.length; i++) {
+        total += this.getTotal(i)
       }
-      return 0;
-    },
-    bookTotal() {
-      if (
-        this.details.book.weight != "" &&
-        this.details.book.price != "" &&
-        this.details.book.weight != undefined &&
-        this.details.book.price != undefined
-      ) {
-        console.log("has");
-        return this.details.book.weight * this.details.book.price / 10;
-      }
-      return 0;
-    },
-    bottleTotal() {
-      if (
-        this.details.bottle.weight != "" &&
-        this.details.bottle.price != "" &&
-        this.details.bottle.weight != undefined &&
-        this.details.bottle.price != undefined
-      ) {
-        console.log("has");
-        return this.details.bottle.weight * this.details.bottle.price / 10;
-      }
-      return 0;
-    },
-    ironTotal() {
-      if (
-        this.details.iron.weight != "" &&
-        this.details.iron.price != "" &&
-        this.details.iron.weight != undefined &&
-        this.details.iron.price != undefined
-      ) {
-        console.log("has");
-        return this.details.iron.weight * this.details.iron.price / 10;
-      }
-      return 0;
+      if (total)
+        return parseFloat(total)
     }
   }
 };
@@ -191,6 +110,14 @@ input {
   height: 100%;
   outline: none;
   border: none;
+  color: #ffaa42;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.total-input::placeholder {
   color: #ffaa42;
   font-weight: 400;
   font-style: normal;

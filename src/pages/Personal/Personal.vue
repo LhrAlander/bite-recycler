@@ -12,7 +12,7 @@
 				<div class="history">
 					<div class="wp">
 						<img src="/static/icons/order.png" alt="order" class='order'>
-						<span class="title">回收记录</span>
+						<span class="title" @click="$router.push('/record')">回收记录</span>
 					</div>
 				</div>
 				<div class="star">

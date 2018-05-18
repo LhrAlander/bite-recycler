@@ -1,7 +1,7 @@
 <template>
 	<div class="g-inworking">
 		<!-- <yd-popup v-model="checkShow"> -->
-      <check-info @cancelCheck='cancelCheck' @confirm='confirm' v-if="checkShow"></check-info>  
+      <check-info @cancelCheck='cancelCheck' :currentOrder='currentOrder' @confirm='confirm' v-if="checkShow"></check-info>  
 			<confirm-pop v-if="confirmShow"></confirm-pop>
     <!-- </yd-popup> -->
 		<div class="m-comment" ref='commentBar'>
@@ -45,8 +45,8 @@ import orderStatus from "@/config/common";
 import checkInfo from "./components/checkInfo";
 import confirmPop from "./components/confirmPop";
 import { Popup } from "vue-ydui/dist/lib.rem/popup";
-import io from 'socket.io-client'
-import axios from 'axios'
+import io from "socket.io-client";
+import axios from "axios";
 export default {
   components: {
     MyFooter,
@@ -56,13 +56,24 @@ export default {
     confirmPop
   },
   mounted() {
-    this.startQueryOrders()
+    let past = window.localStorage.getItem("pasteStatus");
+    if (past) {
+      console.log('找到了')
+      past = JSON.parse(past);
+      for (let i = 0; i < past.length; i++) {
+        let o = past[i];
+        this.orders.push(o);
+      }
+    } else {
+      console.log('meizhoadao')
+      this.startQueryOrders();
+    }
+    this.initSocket()
     const html = document.getElementsByTagName("html")[0];
     const htmlUnitFontSize = window
       .getComputedStyle(html, null)
       .getPropertyValue("font-size");
     this.htmlUnitFontSize = parseFloat(htmlUnitFontSize);
-
     const _top = this.$refs["top"];
     const _bottom = this.$refs["bottom"];
     this.changeDiff =
@@ -96,43 +107,25 @@ export default {
         currentBorder.y >= border.top &&
         currentBorder.y <= border.bottom
       ) {
+        window.localStorage.removeItem('pasteStatus')
         this.$router.push("/workOrder");
       }
     });
   },
   data() {
     return {
+      getOrder: false,
+      currentOrder: {},
       socket: null,
-      queryBind: '',
+      queryBind: "",
       commentShow: true,
       checkShow: false,
       confirmShow: false,
       changeDiff: "",
       orderShow: true,
       htmlUnitFontSize: 16,
-      needLength: 2,
-      orders: [
-        {
-          status: orderStatus.order.WAIT_STATUS,
-          waitTime: 35,
-          address: "杭州市上城区阳光小区3单元1803室",
-          distance: "888m",
-          active: false,
-          currentStatus: "待处理",
-          fnTitle: "开始处理",
-          index: 0
-        },
-        {
-          status: orderStatus.order.WAIT_STATUS,
-          waitTime: 3,
-          address: "杭州市上城区阳光小区5单元1901室",
-          distance: "1.3km",
-          active: false,
-          currentStatus: "待处理",
-          fnTitle: "开始处理",
-          index: 1
-        }
-      ],
+      needLength: 3,
+      orders: [],
       first: true,
       second: true
     };
@@ -146,17 +139,20 @@ export default {
         case orderStatus.order.IN_WORKING:
           order.status = orderStatus.order.WAIT_CONFIRM;
           order.active = true;
+          this.currentOrder = order;
           this.checkInfo();
           order.currentStatus = "待确认";
           order.fnTitle = "再次发起请求";
           break;
         case orderStatus.order.WAIT_CONFIRM:
           order.active = true;
+          this.currentOrder = order;
           this.checkInfo();
       }
     },
     swapOrder(order) {
-      const otherOrder = this.orders[(this.orders.indexOf(order) + 1) % 2];
+      let otherOrder = this.orders[(this.orders.indexOf(order) + 1) % 2];
+      console.log("another", otherOrder);
       if (otherOrder.status == orderStatus.order.IN_WORKING) {
         return;
       } else {
@@ -165,65 +161,127 @@ export default {
         order.currentStatus = "处理中";
         order.fnTitle = "核对信息";
         let out = {};
-        if (order.index == 1) {
-          const p = this.$refs.swapWrapper;
-          p.firstElementChild.style.transition = "all 800ms";
-          p.lastElementChild.style.transition = "all 800ms";
-          if (1 == this.orders.indexOf(order)) {
-            this.changeDiff = Math.abs(
-              p.firstElementChild.getBoundingClientRect().top -
-                p.lastElementChild.getBoundingClientRect().top
-            );
-            out.outEl = p.firstElementChild;
-            out.other = p.lastElementChild;
-            out.dt = `-${p.firstElementChild.getBoundingClientRect().height +
-              1000}px`;
-            out.otherRecDt = `-${2 *
-              (this.changeDiff - this.htmlUnitFontSize)}px`;
-            out.outElRecDt = `${this.changeDiff}px`;
-            p.firstElementChild.style.marginTop = `${this.changeDiff}px`;
-            console.log(this.changeDiff);
-            p.lastElementChild.style.marginTop = `-${2 *
-              (this.changeDiff - this.htmlUnitFontSize)}px`;
-          } else {
-            p.firstElementChild.style.marginTop = `0`;
-            p.lastElementChild.style.marginTop = `${2*this.htmlUnitFontSize}px`;
-            out.outEl = p.lastElementChild;
-            out.other = p.firstElementChild;
-            out.otherRecDt = `0`;
-            out.outElRecDt = `${2*this.htmlUnitFontSize}px`;
-            out.dt = "0";
-          }
-          if (otherOrder.status == orderStatus.order.WAIT_CONFIRM) {
-            setTimeout(() => {
-              this.commentShow = true
-              const commentBar = this.$refs['commentBar']
-              console.log(commentBar)
-							commentBar.style.left = '0'
-              out.outEl.style.marginTop = "1000px";
-              out.other.style.marginTop = out.dt;
-              setTimeout(() => {
-                commentBar.style.left = '100%'
-                // this.commentShow = false
-								otherOrder.status = orderStatus.order.WAIT_STATUS
-								otherOrder.currentStatus = '待处理'
-								otherOrder.fnTitle = '开始处理'
-								otherOrder.active = false
-                out.other.style.marginTop = out.otherRecDt;
-                out.outEl.style.marginTop = out.outElRecDt;
-              }, 1000);
-            }, 1000);
-          }
-          this.orders.forEach(i => {
-            i.index = (i.index + 1) % 2;
-          });
+        const p = this.$refs.swapWrapper;
+        p.firstElementChild.style.transition = "all 800ms";
+        p.lastElementChild.style.transition = "all 800ms";
+        if (1 == this.orders.indexOf(order)) {
+          this.changeDiff = Math.abs(
+            p.firstElementChild.getBoundingClientRect().top -
+              p.lastElementChild.getBoundingClientRect().top
+          );
+          out.outEl = p.firstElementChild;
+          out.other = p.lastElementChild;
+          out.dt = `-${p.firstElementChild.getBoundingClientRect().height +
+            1000}px`;
+          out.otherRecDt = `-${2 *
+            (this.changeDiff - this.htmlUnitFontSize)}px`;
+          out.outElRecDt = `${this.changeDiff}px`;
+          p.firstElementChild.style.marginTop = `${this.changeDiff}px`;
+          console.log(this.changeDiff);
+          p.lastElementChild.style.marginTop = `-${2 *
+            (this.changeDiff - this.htmlUnitFontSize)}px`;
+        } else {
+          p.firstElementChild.style.marginTop = `0`;
+          p.lastElementChild.style.marginTop = `${2 * this.htmlUnitFontSize}px`;
+          out.outEl = p.lastElementChild;
+          out.other = p.firstElementChild;
+          out.otherRecDt = `0`;
+          out.outElRecDt = `${2 * this.htmlUnitFontSize}px`;
+          out.dt = "0";
         }
+
+        if (otherOrder.status == orderStatus.order.WAIT_CONFIRM) {
+          setTimeout(() => {
+            this.commentShow = true;
+            const commentBar = this.$refs["commentBar"];
+            console.log(commentBar);
+            commentBar.style.left = "0";
+            out.outEl.style.marginTop = "1000px";
+            out.other.style.marginTop = out.dt;
+            setTimeout(() => {
+              commentBar.style.left = "100%";
+              this.changeOrder(otherOrder);
+              // this.commentShow = false
+              otherOrder.status = orderStatus.order.WAIT_STATUS;
+              otherOrder.currentStatus = "待处理";
+              otherOrder.fnTitle = "开始处理";
+              otherOrder.active = false;
+              out.other.style.marginTop = out.otherRecDt;
+              out.outEl.style.marginTop = out.outElRecDt;
+              this.orders.forEach(i => {
+                i.index = (i.index + 1) % 2;
+                window.localStorage.setItem(
+                  "pasteStatus",
+                  JSON.stringify(this.orders)
+                );
+              });
+            }, 1000);
+          }, 1000);
+        }
+      }
+    },
+    changeOrder(order) {
+      for (let k in order) {
+        let v = order[k];
+        order[k] = this.orders[2][k];
+        this.orders[2][k] = v;
       }
     },
     checkInfo() {
       this.checkShow = true;
     },
-    confirm() {
+    confirm(d) {
+      let o = {
+        id: this.currentOrder.id,
+        detail: JSON.stringify(d)
+      };
+      axios
+        .post("/api/recycler/orders/complete", {
+          order: o,
+          OID: window.localStorage.getItem("OID")
+        })
+        .then(res => {
+          console.log("完成订单", res);
+          // 未收到订单
+          return axios.post("/api/recycler/orders/unchecked", {
+            needLength: 1,
+            OID: window.localStorage.getItem("OID")
+          });
+        })
+        .then(res => {
+          console.log(res);
+          if (!this.getOrder) {
+            let o = res.data.shift();
+            console.log(o);
+            let startTime = new Date(o.startTime);
+            let nowTime = new Date();
+            let awaitTime = parseInt(parseInt(nowTime - startTime) / 1000 / 60);
+            let details = [];
+            o.detail = JSON.parse(o.detail);
+            for (let k in o.detail) {
+              details.push(k);
+            }
+            let _o = {
+              status: orderStatus.order.WAIT_STATUS,
+              waitTime: awaitTime,
+              address: o.address,
+              distance: "80m",
+              active: false,
+              currentStatus: "待处理",
+              fnTitle: "开始处理",
+              index: this.orders.length,
+              detail: details,
+              id: o.id
+            };
+            this.changeOrder(_o);
+          } else {
+            console.log("不变");
+            this.getOrder = false;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
       this.confirmShow = true;
       let that = this;
       setTimeout(function() {
@@ -234,40 +292,104 @@ export default {
     cancelCheck() {
       this.checkShow = false;
     },
-    getData() {
-      axios.post('/api/recycler/orders/unchecked', {
-        needLength: this.needLength
-      })
-        .then(res => {
-          console.log(res)
-        })
-        .catch(err => {
-          console.log(err)
-        })
+    initSocket() {
+      this.socket = io.connect("http://localhost:9999");
+      let OID = window.localStorage.getItem("OID");
+      this.socket.emit("addUser", {
+        OID
+      });
+      this.socket.on("newOrders", msg => {
+        try {
+          console.log("has new Orders");
+          console.log(msg);
+          this.getOrder = true;
+          let o = msg.orders;
+          o.detail = JSON.parse(o.detail);
+          let startTime = new Date(o.startTime);
+          let nowTime = new Date();
+          let awaitTime = parseInt(parseInt(nowTime - startTime) / 1000 / 60);
+          let details = [];
+          for (let k in o.detail) {
+            details.push(k);
+          }
+          let _o = {
+            id: o.id,
+            status: orderStatus.order.WAIT_STATUS,
+            waitTime: awaitTime,
+            address: o.address,
+            distance: "80m",
+            active: false,
+            currentStatus: "待处理",
+            fnTitle: "开始处理",
+            index: 3,
+            detail: details
+          };
+          this.orders[2] = _o;
+        } catch (err) {
+          console.log("er", err);
+        }
+      });
     },
     // 轮询查看访问订单
     async startQueryOrders() {
-      console.log('try to connect')
-      this.socket = await io.connect('http://localhost:9999')
-      let OID = window.localStorage.getItem('OID')
-      this.socket.emit('addUser', {
-        OID
-      })
-      this.socket.on('newOrders', msg => {
-        console.log(msg)
-      })
-      axios.post('/api/recycler/orders/unchecked')
+      let OID = window.localStorage.getItem("OID");
+      axios
+        .post("/api/recycler/orders/unchecked", {
+          needLength: this.needLength,
+          OID
+        })
         .then(res => {
-          console.log(res)
+          this.orders = [];
+          let msg = {};
+          msg.orders = res.data;
+          msg.orders.forEach(o => {
+            o.detail = JSON.parse(o.detail);
+          });
+          console.log("mmm", msg);
+          let currentOrders = [];
+          while (
+            this.orders.length < 3 &&
+            "orders" in msg &&
+            msg.orders.length > 0
+          ) {
+            let o = msg.orders.shift();
+            let startTime = new Date(o.startTime);
+            let nowTime = new Date();
+            let awaitTime = parseInt(parseInt(nowTime - startTime) / 1000 / 60);
+            let details = [];
+            for (let k in o.detail) {
+              details.push(k);
+            }
+            let _o = {
+              status: orderStatus.order.WAIT_STATUS,
+              waitTime: awaitTime,
+              address: o.address,
+              distance: "80m",
+              active: false,
+              currentStatus: "待处理",
+              fnTitle: "开始处理",
+              index: this.orders.length,
+              detail: details,
+              id: o.id,
+              startTime: o.startTime
+            };
+            this.orders.push(_o);
+            currentOrders.push(_o);
+          }
+          currentOrders.pop();
+          window.localStorage.setItem(
+            "pasteStatus",
+            JSON.stringify(this.orders)
+          );
         })
         .catch(err => {
-          console.log(err)
-        })
+          console.log(err);
+        });
     }
   },
   destroyed() {
-    console.log('取消查询')
-    this.socket.close()
+    console.log("取消查询");
+    this.socket.close();
   }
 };
 </script>
@@ -275,7 +397,7 @@ export default {
 .g-inworking {
   height: calc(100% + 98px);
   width: 100%;
-	overflow: hidden;
+  overflow: hidden;
 }
 .g-bd {
   width: 100%;
@@ -312,43 +434,42 @@ export default {
   justify-content: space-between; */
 }
 .m-comment {
-	width: 100%;
-	height: 2.5rem;
-	position: fixed;
-	top: 0;
-	left: 100%;
-	z-index: 1500;
-	background: #fff;
-	transition: all 400ms;
+  width: 100%;
+  height: 2.5rem;
+  position: fixed;
+  top: 0;
+  left: 100%;
+  z-index: 1500;
+  background: #fff;
+  transition: all 400ms;
 }
 .u-comment,
 .u-hd {
-	height: 100%;
+  height: 100%;
   width: 95%;
   margin: 0 auto;
 }
 
 .u-comment {
-	display: flex;
+  display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .u-comment img {
-	width: 1.375rem;
-	height: 1.375rem;
+  width: 1.375rem;
+  height: 1.375rem;
 }
 .u-comment span {
-  font-size: .6875rem;
+  font-size: 0.6875rem;
 }
 
 .u-comment .comment-btn {
-	font-size: .6875rem;
-	color: #32AAFA;
-	padding: .1rem .5rem;
-	border: .1rem solid #32AAFA;
-	border-radius: .3rem;
-
+  font-size: 0.6875rem;
+  color: #32aafa;
+  padding: 0.1rem 0.5rem;
+  border: 0.1rem solid #32aafa;
+  border-radius: 0.3rem;
 }
 
 .u-hd {
@@ -407,6 +528,7 @@ export default {
 }
 .u-get-order {
   /* height: 43px; */
+  /* height: 100%; */
 }
 .u-get-order {
   background: linear-gradient(to right, #ffb9b9, #f88);
